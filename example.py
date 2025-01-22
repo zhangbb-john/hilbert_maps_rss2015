@@ -32,7 +32,7 @@ def train_sparse_hm(data, components, gamma, distance_cutoff):
     # Limits in metric space based on poses with a 10m buffer zone
     xlim, ylim = util.bounding_box(poses, 10.0)
     # Sampling locations distributed in an even grid over the area
-    centers = util.sampling_coordinates(xlim, ylim, math.sqrt(components))
+    centers = util.sampling_coordinates(xlim, ylim, math.ceil(math.sqrt(components)))
 
     model = hm.SparseHilbertMap(centers, gamma, distance_cutoff)
 

@@ -139,13 +139,22 @@ class SparseHilbertMap(object):
         self.cutoff = cutoff
         self.use_rkhs = use_rkhs
         self.batch_size = 10000
+        # self.classifier = SGDClassifier(
+        #     loss="log",
+        #     penalty="elasticnet",
+        #     alpha=0.0001,
+        #     class_weight="auto",
+        #     l1_ratio=0.80,
+        # )
         self.classifier = SGDClassifier(
-            loss="log",
-            penalty="elasticnet",
-            alpha=0.0001,
-            class_weight="auto",
-            l1_ratio=0.80,
+            loss="log",                 # Logistic regression
+            penalty="elasticnet",       # Elastic net regularization
+            alpha=0.0001,               # Regularization strength
+            l1_ratio=0.8,               # Elastic net mixing parameter
+            max_iter=1000,              # Maximum number of iterations
+            tol=1e-3                    # Tolerance for stopping
         )
+
 
     def add(self, data, labels):
         """Updates the classifier with new data.
