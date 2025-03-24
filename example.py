@@ -15,7 +15,7 @@ import sys
 import hilbert_map as hm
 import util
 
-
+plt.ion() 
 def train_sparse_hm(data, components, gamma, distance_cutoff):
     """Trains a hilbert map model using the sparse feature.
 
@@ -32,13 +32,28 @@ def train_sparse_hm(data, components, gamma, distance_cutoff):
     # Limits in metric space based on poses with a 10m buffer zone
     xlim, ylim = util.bounding_box(poses, 10.0)
     # Sampling locations distributed in an even grid over the area
-    centers = util.sampling_coordinates(xlim, ylim, math.ceil(math.sqrt(components)))
+    centers = util.sampling_coordinates(xlim, ylim, math.floor(math.sqrt(components)))
+    x_coords, y_coords = zip(*centers)
 
-    model = hm.SparseHilbertMap(centers, gamma, distance_cutoff)
+    # Plot the centers
+    plt.figure(1)
+    plt.scatter(x_coords, y_coords, c='red', label='Centers')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Plot of inducing point centers')
+    plt.legend()
+    plt.grid(True)
+    plt.pause(2)
+    model = hm.SparseHilbertMap(centers, gamma, distance_cutoff, False)
 
     # Train the model with the data
     count = 0
     for data, label in util.data_generator(poses, scans):
+        # print("No. ", count, "\n")
+        # print("label size is ", label.shape, "; data size is ", data.shape)
+        # plt.figure(2)
+        # plt.scatter(data[:, 0], data[:, 1], c=label, label='Centers', s=0.1)
+        # plt.pause(0.002)  # Wait for 2 seconds before continuing
         model.add(data, label)
 
         sys.stdout.write("\rTraining model: {: 6.2f}%".format(count / float(len(poses)) * 100))
@@ -66,7 +81,10 @@ def train_incremental_hm(data, components, gamma, feature):
 
     # Fit the feature to the dataset
     training_data = []
+    num = 0
     for data, label in util.data_generator(poses, scans):
+        num = num + 1
+        # if (num % 30 == 0):
         training_data.extend(data)
     model.fit(np.array(training_data))
 
@@ -173,7 +191,7 @@ def main():
 
     # Load data and split it into training and testing data
     train_data, test_data = util.create_test_train_split(args.logfile, 0.1)
-
+    print("length of train_data.poses is ", len(train_data["poses"]))
     # Train the desired model on the data
     if args.feature == "sparse":
         model = train_sparse_hm(train_data, args.components, args.gamma, args.distance_cutoff)

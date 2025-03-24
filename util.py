@@ -204,12 +204,14 @@ def create_test_train_split(logfile, percentage=0.1, sequence_length=40):
     """
     # Parse the logfile
     poses, scans = parse_carmen_log(logfile)
-    
+    print("length of scan[0] is ", len(scans[0]))
+    print("length of poses is ", len(poses))
     # Create training and testing splits
     groups = int((len(poses)*percentage) / sequence_length)
     test_indices = []
     group_count = 0
     while group_count < groups:
+        print("group_count = ", group_count)
         start = random.randint(0, len(poses)-sequence_length)
         if start in test_indices or (start+sequence_length) in test_indices:
             continue
@@ -239,7 +241,7 @@ def sparsify_scans(logfile, percent_removed):
     :return lists of poses, training readings and test readings
     """
     assert(0 <= percent_removed <= 1)
-
+    print("sparsify scans")
     poses, scans = parse_carmen_log(logfile)
     discard_count = int(len(scans[0]) * percent_removed)
     angle_increment = math.pi / len(scans[0])
@@ -267,6 +269,8 @@ def sparsify_scans(logfile, percent_removed):
 
 
 def sparsify_data(scan_data, percent_removed):
+    for i in range(10):
+        print("this function is awful since angle is calculated by counting")
     """Removes a specified percentage of data from a dataset.
 
     :param scan_data the dataset to sparsify
@@ -312,6 +316,16 @@ def roc_evaluation(model, data):
 
     fpr, tpr, _ = roc_curve(test_labels, predictions)
     auc = roc_auc_score(test_labels, predictions)
+
+    with open("test_labels.txt", "w") as file:
+        # Write each double on a new line
+        for value in test_labels:
+            file.write(f"{value}\n")
+
+    with open("predictions.txt", "w") as file:
+        # Write each double on a new line
+        for value in predictions:
+            file.write(f"{value}\n")
     return tpr, fpr, auc
 
 

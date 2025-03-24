@@ -136,6 +136,7 @@ class SparseHilbertMap(object):
         """
         self.centers = centers
         self.gamma = gamma
+        print("self.gamma is ", self.gamma)
         self.cutoff = cutoff
         self.use_rkhs = use_rkhs
         self.batch_size = 10000
@@ -185,6 +186,7 @@ class SparseHilbertMap(object):
                 while offset < len(data):
                     # Compute kernel matrix and sparsify it
                     kernel = rbf_kernel(data[offset:offset+self.batch_size], self.centers, self.gamma)
+                    # print("kernel:", kernel.shape)
                     kernel = sparse.csr_matrix(kernel * (kernel > self.cutoff))
 
                     # Update the classifier using the kernel matrix
